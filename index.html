@@ -1,0 +1,765 @@
+html_content = '''<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0c">
+<meta name="description" content="Shadow War - Dark Legacy RPG">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Shadow War — Dark Legacy</title>
+<style>
+    :root {
+        --bg-dark: #0a0a0c;
+        --panel-bg: #141419;
+        --border-color: #2a2a35;
+        --accent-red: #8b0000;
+        --accent-gold: #d4af37;
+        --accent-blue: #1e3a8a;
+        --text-light: #e2e8f0;
+        --text-dim: #94a3b8;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        user-select: none;
+    }
+
+    body {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* Auth Screen */
+    #auth-screen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: radial-gradient(circle, #1a0505 0%, #050505 100%);
+    }
+
+    .auth-card {
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-red);
+        border-radius: 12px;
+        padding: 30px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 0 25px rgba(139, 0, 0, 0.4);
+        text-align: center;
+    }
+
+    .auth-card h1 {
+        color: var(--accent-red);
+        letter-spacing: 3px;
+        margin-bottom: 20px;
+        font-size: 28px;
+        text-transform: uppercase;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px;
+        background: #08080a;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .auth-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    /* Main Game Layout */
+    #game-layout {
+        display: none;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    header {
+        background: #0f0f13;
+        border-bottom: 2px solid var(--border-color);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .race-badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    .race-vampire { background: #4a0000; color: #ff6b6b; border: 1px solid #ff0000; }
+    .race-werewolf { background: #1a2a3a; color: #6ba4ff; border: 1px solid #0066ff; }
+
+    .stats-bar {
+        display: flex;
+        gap: 20px;
+        background: #08080a;
+        padding: 8px 15px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        font-size: 14px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .gold { color: var(--accent-gold); }
+    .essence { color: #a855f7; }
+
+    /* Container Main */
+    .main-content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+        .main-content {
+            flex-direction: row;
+        }
+    }
+
+    nav {
+        background: #111116;
+        width: 100%;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        overflow-x: auto;
+    }
+
+    @media (min-width: 768px) {
+        nav {
+            width: 220px;
+            flex-direction: column;
+            border-bottom: none;
+            border-right: 1px solid var(--border-color);
+            overflow-x: visible;
+        }
+    }
+
+    .nav-btn {
+        padding: 15px 20px;
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        text-align: left;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.2s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+        background: #1c1c24;
+        color: #fff;
+        border-left: 4px solid var(--accent-red);
+    }
+
+    /* Content Area */
+    .content-area {
+        flex: 1;
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .panel h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: var(--accent-gold);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+        background: var(--accent-red);
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .btn:hover {
+        filter: brightness(1.2);
+    }
+
+    .btn:disabled {
+        background: #444;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background: #2d3748;
+    }
+
+    .btn-gold {
+        background: #96700c;
+        color: #fff;
+    }
+
+    /* Grid & Cards */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: #0d0d11;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+
+    /* Items Visual */
+    .item-card {
+        background: #0d0d11;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+    }
+
+    .item-card.common { border-color: #64748b; }
+    .item-card.rare { border-color: #3b82f6; }
+    .item-card.epic { border-color: #a855f7; }
+    .item-card.legendary { border-color: #f59e0b; }
+
+    .item-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 10px;
+    }
+
+    /* Timer Display */
+    .timer-display {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--accent-gold);
+        text-align: center;
+        margin: 20px 0;
+        letter-spacing: 2px;
+    }
+
+    /* Dev Console Drawer */
+    #dev-console {
+        position: fixed;
+        right: -350px;
+        top: 0;
+        width: 350px;
+        height: 100vh;
+        background: #0c0c10;
+        border-left: 2px solid var(--accent-gold);
+        box-shadow: -5px 0 20px rgba(0,0,0,0.8);
+        transition: 0.3s;
+        z-index: 1000;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    #dev-console.open {
+        right: 0;
+    }
+
+    .dev-toggle {
+        position: fixed;
+        right: 10px;
+        bottom: 10px;
+        background: var(--accent-gold);
+        color: #000;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 999;
+        box-shadow: 0 0 10px rgba(212,175,55,0.5);
+    }
+
+    /* Mobile/PWA refinements */
+    body { padding-bottom: env(safe-area-inset-bottom); }
+    header { padding-top: max(12px, env(safe-area-inset-top)); }
+    .stats-bar { flex-wrap: wrap; gap: 8px 14px; border-radius: 12px; }
+    .content-area { padding: 14px; }
+    .panel { padding: 15px; }
+    .auth-card { margin: 16px; }
+    .btn { min-height: 42px; touch-action: manipulation; }
+    .nav-btn { min-height: 52px; }
+    input, select { font-size: 16px !important; }
+    #dev-console { max-width: 90vw; }
+    .utility-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .utility-actions .btn { font-size:12px; padding:8px 10px; }
+    .save-status { color:#94a3b8; font-size:11px; }
+    @media (max-width: 767px) {
+      header { align-items:flex-start; }
+      .user-info { flex-wrap:wrap; gap:8px; }
+      .stats-bar { width:100%; justify-content:space-between; font-size:12px; }
+      nav { position:sticky; top:0; z-index:20; }
+      .nav-btn { padding:12px 14px; font-size:12px; }
+      .grid-2 { grid-template-columns:1fr; }
+      .stat-row { gap:10px; flex-wrap:wrap; }
+      .timer-display { font-size:28px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Tela de Login / Reg -->
+<div id="auth-screen">
+    <div class="auth-card">
+        <h1>Shadow War</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px; font-size: 13px;">Dark Legacy RPG</p>
+        
+        <div class="input-group">
+            <label>Usuário</label>
+            <input type="text" id="auth-user" placeholder="Seu nome de guerreiro">
+        </div>
+        <div class="input-group">
+            <label>Senha</label>
+            <input type="password" id="auth-pass" placeholder="******">
+        </div>
+        <div class="input-group" id="race-select-group" style="display: none;">
+            <label>Escolha sua Raça</label>
+            <select id="auth-race" style="width:100%; padding: 12px; background:#08080a; color:#fff; border: 1px solid var(--border-color); border-radius:6px;">
+                <option value="vampire">🦇 Vampiro</option>
+                <option value="werewolf">🐺 Lobisomem</option>
+            </select>
+        </div>
+
+        <div class="auth-btns">
+            <button class="btn" style="flex:1" onclick="handleAuth('login')">Entrar</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="handleAuth('register')">Cadastrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Interface do Jogo -->
+<div id="game-layout">
+    <header>
+        <div class="user-info">
+            <span id="char-name" style="font-weight: bold; font-size: 18px;">-</span>
+            <span id="char-race" class="race-badge">-</span>
+            <span>Nível: <strong id="char-level" style="color: var(--accent-gold)">1</strong></span>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item gold">💰 Ouro: <span id="char-gold">0</span></div>
+            <div class="stat-item essence">🔮 Essência: <span id="char-essence">0</span></div>
+            <div class="stat-item">⏳ Cota Diária: <span id="char-stamina">120m</span></div>
+        </div>
+        <div>
+          <button class="btn btn-secondary" onclick="exportBackup()" style="padding: 5px 10px; font-size:12px;">Backup</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('backup-file').click()" style="padding: 5px 10px; font-size:12px;">Restaurar</button>
+          <button class="btn btn-secondary" onclick="logout()" style="padding: 5px 10px; font-size:12px;">Sair</button>
+          <input id="backup-file" type="file" accept="application/json,.json" hidden onchange="importBackup(event)">
+          <div class="save-status" id="save-status">Salvamento local ativo</div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('character')">📜 Personagem</button>
+            <button class="nav-btn" onclick="switchTab('hunt')">⚔️ Caçadas</button>
+            <button class="nav-btn" onclick="switchTab('merchant')">🛒 Mercador</button>
+
+            <button class="nav-btn" onclick="switchTab('pets')">🐉 Mascotes</button>
+            <button class="nav-btn" onclick="switchTab('work')">⚒️ Trabalho AFK</button>
+            <button class="nav-btn" onclick="switchTab('pvp')">⚔️ PvP Amigos</button>
+        </nav>
+
+        <div class="content-area">
+            <!-- Personagem Tab -->
+            <div id="tab-character" class="tab-pane active">
+                <div class="panel">
+                    <h2>Treino de Atributos</h2>
+                    <div class="grid-2" id="attributes-list"></div>
+                </div>
+            </div>
+
+            <!-- Caçadas Tab -->
+            <div id="tab-hunt" class="tab-pane">
+                <div class="panel">
+                    <h2>Caça Humana (Cota Diária em Tempo Real)</h2>
+                    <p style="color: var(--text-dim); margin-bottom: 15px;">Escolha a duração da expedição. Cada segundo gasto será abatido de sua estamina diária.</p>
+                    
+                    <div id="hunt-controls" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn" onclick="startHunt(15)">⚡ Expedição Curta (15 Segundos)</button>
+                        <button class="btn" onclick="startHunt(30)">🗡️ Caçada Média (30 Segundos)</button>
+                        <button class="btn" onclick="startHunt(60)">🩸 Incursão Longa (60 Segundos)</button>
+                    </div>
+
+                    <div id="hunt-active" style="display: none;">
+                        <div class="timer-display" id="hunt-timer">00s</div>
+                        <p style="text-align: center; color: var(--text-dim);">Caçando no território inimigo...</p>
+                    </div>
+
+                    <div id="hunt-result" style="margin-top: 20px; display: none;" class="panel">
+                        <h3 style="color: var(--accent-gold);">Resultado da Caçada</h3>
+                        <p id="hunt-log-text" style="margin-top: 10px; font-family: monospace;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mercador Tab -->
+            <div id="tab-merchant" class="tab-pane">
+                <div class="panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h2>Mercador Clandestino (Rolls Aleatórios)</h2>
+                        <button class="btn btn-gold" onclick="rerollMerchant()">🔄 Atualizar Ofertas (50 Ouro)</button>
+                    </div>
+                    <div class="grid-2" id="merchant-items"></div>
+                </div>
+            </div>
+
+            <!-- Mascotes Tab -->
+            <div id="tab-pets" class="tab-pane">
+                <div class="panel">
+                    <h2>Canil & Bestiário</h2>
+                    <div class="grid-2" id="pets-list"></div>
+                </div>
+            </div>
+
+            <!-- Trabalho Tab -->
+            <div id="tab-work" class="tab-pane">
+                <div class="panel">
+                    <h2>Trabalho AFK / Offline</h2>
+                    <p style="color: var(--text-dim); margin-bottom: 15px;">Receba recompensas mesmo quando estiver fora do jogo!</p>
+                    <div class="grid-2" id="work-options"></div>
+                    <div id="work-active-panel" style="display:none; text-align:center; margin-top:20px;">
+                        <h3>Trabalho em Andamento...</h3>
+                        <div class="timer-display" id="work-timer">00:00:00</div>
+                        <button class="btn btn-secondary" onclick="claimWork()">Coletar Recompensa</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PvP Tab -->
+            <div id="tab-pvp" class="tab-pane">
+                <div class="panel">
+                    <h2>Duelo Online P2P (Multiplayer)</h2>
+                    <p style="color: var(--text-dim); margin-bottom: 15px;">Exporte o código da sua ficha e envie para um amigo batalhar contra você!</p>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <button class="btn btn-gold" onclick="exportPvpCode()">📋 Copiar Meu Código de Desafio</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Cole o Código de Desafio do seu Amigo:</label>
+                        <input type="text" id="pvp-input-code" placeholder="Cole a hash do seu rival aqui...">
+                    </div>
+                    <button class="btn" onclick="startPvpBattle()">⚔️ INICIAR LUTA P2P</button>
+
+                    <div id="pvp-result" class="panel" style="display: none; margin-top: 20px;">
+                        <h3>Relatório da Arena</h3>
+                        <div id="pvp-log" style="font-family: monospace; white-space: pre-wrap; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dev Sandbox -->
+<div class="dev-toggle" onclick="toggleDevConsole()">🛠️ Dev Console</div>
+<div id="dev-console">
+    <h3 style="color: var(--accent-gold); margin-bottom: 15px;">Sandbox Developer</h3>
+    <button class="btn btn-gold" style="width: 100%; margin-bottom: 10px;" onclick="addDevGold()">💰 +10.000 Ouro</button>
+    <button class="btn btn-gold" style="width: 100%; margin-bottom: 10px;" onclick="addDevEssence()">🔮 +500 Essência</button>
+    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;" onclick="resetStamina()">⏳ Resetar Cota Diária</button>
+    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;" onclick="levelUpDev()">⭐ Subir Nível</button>
+</div>
+
+
+<script>
+'use strict';
+let currentUser = null, gameState = null, huntInterval = null, workInterval = null;
+const DB_KEY = 'shadowwar_users_v1';
+const DEFAULT_STATE = {
+  name:'', race:'vampire', level:1, xp:0, gold:500, essence:50,
+  staminaSeconds:7200, lastStaminaReset:Date.now(),
+  attributes:{str:10,agi:10,def:10,res:10,luk:5},
+  equipment:{weapon:null,armor:null,ring:null}, pet:null,
+  workEnd:null, workGold:0, inventory:[], merchantRoll:0, lastSaved:Date.now()
+};
+const $ = id => document.getElementById(id);
+const readDB = () => { try { return JSON.parse(localStorage.getItem(DB_KEY) || '{}'); } catch { return {}; } };
+const writeDB = db => localStorage.setItem(DB_KEY, JSON.stringify(db));
+async function hashPassword(password, saltHex) {
+  if (!crypto?.subtle) throw new Error('Ative o jogo por HTTPS para habilitar o armazenamento seguro de senha.');
+  const salt = saltHex ? Uint8Array.from(saltHex.match(/.{1,2}/g).map(x=>parseInt(x,16))) : crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},key,256);
+  return {salt:[...salt].map(x=>x.toString(16).padStart(2,'0')).join(''), hash:[...new Uint8Array(bits)].map(x=>x.toString(16).padStart(2,'0')).join('')};
+}
+async function handleAuth(type) {
+  const u=$('auth-user').value.trim(), p=$('auth-pass').value, r=$('auth-race').value;
+  if(!u || !p) return alert('Preencha usuário e senha.');
+  if(u.length>30 || p.length<4) return alert('Use um usuário de até 30 caracteres e senha com pelo menos 4 caracteres.');
+  const db=readDB();
+  if(type==='register') {
+    if(db[u]) return alert('Esse usuário já existe neste dispositivo.');
+    const credential=await hashPassword(p);
+    const state=structuredClone(DEFAULT_STATE); state.name=u; state.race=r;
+    db[u]={passwordHash:credential.hash,passwordSalt:credential.salt,state}; writeDB(db);
+    alert('Conta criada! Entre com seu usuário e senha.');
+    return;
+  }
+  if(!db[u] || !db[u].passwordSalt) return alert('Usuário ou senha incorretos.');
+  const credential=await hashPassword(p,db[u].passwordSalt);
+  if(db[u].passwordHash!==credential.hash) return alert('Usuário ou senha incorretos.');
+  currentUser=u; gameState={...structuredClone(DEFAULT_STATE),...db[u].state};
+  gameState.attributes={...DEFAULT_STATE.attributes,...(gameState.attributes||{})};
+  checkStaminaReset();
+  $('auth-screen').style.display='none'; $('game-layout').style.display='flex';
+  updateUI(); startWorkTicker(); saveState();
+}
+function logout(){ saveState(); currentUser=null; gameState=null; location.reload(); }
+function saveState(){
+  if(!currentUser || !gameState) return;
+  const db=readDB(); if(!db[currentUser]) return;
+  gameState.lastSaved=Date.now(); db[currentUser].state=gameState; writeDB(db);
+  const status=$('save-status'); if(status) status.textContent='Salvo neste dispositivo • '+new Date().toLocaleTimeString('pt-BR');
+}
+function checkStaminaReset(){
+  if(Date.now()-gameState.lastStaminaReset>=86400000){
+    gameState.staminaSeconds=7200; gameState.lastStaminaReset=Date.now();
+  }
+}
+function updateUI(){
+  $('char-name').textContent=gameState.name; $('char-level').textContent=gameState.level;
+  $('char-gold').textContent=gameState.gold.toLocaleString('pt-BR');
+  $('char-essence').textContent=gameState.essence.toLocaleString('pt-BR');
+  $('char-stamina').textContent=Math.floor(gameState.staminaSeconds/60)+'m';
+  const race=$('char-race'); race.textContent=gameState.race==='vampire'?'Vampiro':'Lobisomem';
+  race.className='race-badge race-'+gameState.race;
+  renderAttributes(); renderMerchant(); renderPets(); renderWork();
+}
+function switchTab(tab){
+  document.querySelectorAll('.tab-pane').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  $('tab-'+tab).classList.add('active');
+  const btn=[...document.querySelectorAll('.nav-btn')].find(b=>b.getAttribute('onclick')?.includes("'"+tab+"'"));
+  if(btn) btn.classList.add('active');
+}
+function renderAttributes(){
+  const c=$('attributes-list'); c.innerHTML='';
+  const labels={str:'Força',agi:'Agilidade',def:'Defesa',res:'Resistência',luk:'Sorte'};
+  for(const key of Object.keys(labels)){
+    const value=gameState.attributes[key], cost=value*15;
+    c.insertAdjacentHTML('beforeend',`<div class="stat-row"><div><strong>${labels[key]}</strong>: ${value}</div><button class="btn btn-gold" onclick="trainAttr('${key}')">Treinar (${cost} Ouro)</button></div>`);
+  }
+}
+function trainAttr(key){
+  const cost=gameState.attributes[key]*15;
+  if(gameState.gold<cost) return alert('Ouro insuficiente.');
+  gameState.gold-=cost; gameState.attributes[key]++; saveState(); updateUI();
+}
+const GOODS=[
+  {name:'Lâmina Carmesim',type:'Arma',price:180,rarity:'rare',effect:'Ataque +5'},
+  {name:'Manto da Noite',type:'Armadura',price:160,rarity:'common',effect:'Defesa +4'},
+  {name:'Anel Arcano',type:'Acessório',price:260,rarity:'epic',effect:'Essência +10'},
+  {name:'Poção de Essência',type:'Consumível',price:90,rarity:'common',effect:'Essência +25'}
+];
+function renderMerchant(){
+  const c=$('merchant-items'); if(!c)return; c.innerHTML='';
+  const shift=gameState.merchantRoll%GOODS.length;
+  [...GOODS.slice(shift),...GOODS.slice(0,shift)].forEach((item,i)=>{
+    c.insertAdjacentHTML('beforeend',`<div class="item-card ${item.rarity}"><div class="item-icon">⚔️</div><strong>${item.name}</strong><small>${item.type} • ${item.effect}</small><p class="gold">${item.price} Ouro</p><button class="btn btn-gold" onclick="buyItem(${(i+shift)%GOODS.length})">Comprar</button></div>`);
+  });
+}
+function buyItem(index){
+  const item=GOODS[index]; if(gameState.gold<item.price)return alert('Ouro insuficiente.');
+  gameState.gold-=item.price;
+  if(item.name==='Poção de Essência') gameState.essence+=25;
+  else gameState.inventory.push({...item,boughtAt:Date.now()});
+  saveState(); updateUI();
+}
+function rerollMerchant(){
+  if(gameState.gold<50)return alert('Você precisa de 50 Ouro.');
+  gameState.gold-=50; gameState.merchantRoll++; saveState(); updateUI();
+}
+function renderPets(){
+  const c=$('pets-list'); if(!c)return;
+  const pets=[{name:'Morcego Sombrio',desc:'Companheiro dos vampiros',emoji:'🦇'},{name:'Lobo Cinzento',desc:'Companheiro dos lobisomens',emoji:'🐺'},{name:'Corvo Espectral',desc:'Mensageiro das sombras',emoji:'🐦‍⬛'}];
+  c.innerHTML=pets.map((p,i)=>`<div class="item-card"><div class="item-icon">${p.emoji}</div><strong>${p.name}</strong><small>${p.desc}</small><button class="btn btn-gold" onclick="adoptPet(${i})">${gameState.pet===p.name?'Ativo':'Adotar • 100 Essência'}</button></div>`).join('');
+}
+function adoptPet(i){
+  const pets=['Morcego Sombrio','Lobo Cinzento','Corvo Espectral'], name=pets[i];
+  if(gameState.pet===name){gameState.pet=null;} else {
+    if(gameState.essence<100)return alert('Essência insuficiente.');
+    gameState.essence-=100; gameState.pet=name;
+  }
+  saveState(); updateUI();
+}
+function startHunt(seconds){
+  if(huntInterval)return;
+  if(gameState.staminaSeconds<seconds)return alert('Cota diária insuficiente.');
+  $('hunt-controls').style.display='none'; $('hunt-active').style.display='block'; $('hunt-result').style.display='none';
+  let left=seconds; $('hunt-timer').textContent=left+'s';
+  huntInterval=setInterval(()=>{
+    left--; gameState.staminaSeconds=Math.max(0,gameState.staminaSeconds-1);
+    $('hunt-timer').textContent=left+'s'; $('char-stamina').textContent=Math.floor(gameState.staminaSeconds/60)+'m';
+    saveState();
+    if(left<=0){
+      clearInterval(huntInterval); huntInterval=null;
+      const gold=25+Math.floor(Math.random()*76), essence=5+Math.floor(Math.random()*16), xp=15+Math.floor(Math.random()*26);
+      gameState.gold+=gold; gameState.essence+=essence; gameState.xp+=xp;
+      while(gameState.xp>=gameState.level*100){gameState.xp-=gameState.level*100;gameState.level++;}
+      $('hunt-log-text').textContent=`Expedição concluída! +${gold} Ouro • +${essence} Essência • +${xp} XP.`;
+      $('hunt-result').style.display='block'; $('hunt-controls').style.display='flex'; $('hunt-active').style.display='none';
+      saveState(); updateUI();
+    }
+  },1000);
+}
+function renderWork(){
+  const c=$('work-options'); if(!c)return;
+  const opts=[{label:'Trabalho leve • 1 hora',ms:3600000,gold:100},{label:'Expedição de coleta • 4 horas',ms:14400000,gold:450},{label:'Turno noturno • 8 horas',ms:28800000,gold:1000}];
+  c.innerHTML=opts.map((o,i)=>`<div class="item-card"><strong>${o.label}</strong><p class="gold">Recompensa: ${o.gold} Ouro</p><button class="btn btn-gold" onclick="startWork(${i})">Iniciar</button></div>`).join('');
+  renderWorkStatus();
+}
+function startWork(i){
+  if(gameState.workEnd && Date.now()<gameState.workEnd)return alert('Você já tem um trabalho em andamento.');
+  const opts=[{ms:3600000,gold:100},{ms:14400000,gold:450},{ms:28800000,gold:1000}];
+  gameState.workEnd=Date.now()+opts[i].ms; gameState.workGold=opts[i].gold;
+  saveState(); renderWorkStatus(); startWorkTicker();
+}
+function renderWorkStatus(){
+  const active=gameState.workEnd && Date.now()<gameState.workEnd;
+  $('work-active-panel').style.display=gameState.workEnd?'block':'none';
+  if(!gameState.workEnd)return;
+  $('work-timer').textContent=active?formatTime(gameState.workEnd-Date.now()):'Pronto para coletar!';
+}
+function formatTime(ms){
+  let s=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  return [h,m,sec].map(v=>String(v).padStart(2,'0')).join(':');
+}
+function startWorkTicker(){
+  if(workInterval)clearInterval(workInterval);
+  workInterval=setInterval(()=>{if(gameState){renderWorkStatus();}},1000);
+}
+function claimWork(){
+  if(!gameState.workEnd)return;
+  if(Date.now()<gameState.workEnd)return alert('O trabalho ainda não terminou.');
+  gameState.gold+=gameState.workGold; gameState.workEnd=null; gameState.workGold=0;
+  saveState(); updateUI();
+}
+function exportPvpCode(){
+  const payload={game:'ShadowWar',version:1,name:gameState.name,level:gameState.level,race:gameState.race,attributes:gameState.attributes,pet:gameState.pet};
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  navigator.clipboard?.writeText(code).then(()=>alert('Código de desafio copiado!')).catch(()=>prompt('Copie seu código:',code));
+}
+function startPvpBattle(){
+  let rival; try{rival=JSON.parse(decodeURIComponent(escape(atob($('pvp-input-code').value.trim()))));}catch{return alert('Código inválido.');}
+  if(rival.game!=='ShadowWar')return alert('Esse código não pertence ao Shadow War.');
+  const power=Object.values(gameState.attributes).reduce((a,b)=>a+b,0)+gameState.level*10;
+  const enemy=Object.values(rival.attributes||{}).reduce((a,b)=>a+b,0)+(rival.level||1)*10;
+  const win=power+Math.random()*20>=enemy+Math.random()*20;
+  $('pvp-result').style.display='block';
+  $('pvp-log').textContent=`${gameState.name} vs ${rival.name||'Desafiante'}\\nPoder: ${Math.round(power)} vs ${Math.round(enemy)}\\nResultado simulado: ${win?'VITÓRIA':'DERROTA'}.`;
+}
+function toggleDevConsole(){$('dev-console').classList.toggle('open');}
+function addDevGold(){gameState.gold+=10000;saveState();updateUI();}
+function addDevEssence(){gameState.essence+=500;saveState();updateUI();}
+function resetStamina(){gameState.staminaSeconds=7200;gameState.lastStaminaReset=Date.now();saveState();updateUI();}
+function levelUpDev(){gameState.level++;saveState();updateUI();}
+function exportBackup(){
+  if(!currentUser)return;
+  saveState();
+  const data={format:'shadowwar-backup',version:1,exportedAt:new Date().toISOString(),username:currentUser,account:readDB()[currentUser]};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`shadowwar-backup-${currentUser}.json`;a.click();URL.revokeObjectURL(a.href);
+}
+function importBackup(event){
+  const file=event.target.files?.[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(data.format!=='shadowwar-backup'||!data.account?.state||!data.account?.passwordHash||!data.account?.passwordSalt)throw new Error();
+      const db=readDB(); db[data.username]=data.account; writeDB(db);
+      alert('Backup restaurado. Saia e entre novamente para carregar o progresso.');
+    }catch{alert('Arquivo de backup inválido.');}
+    event.target.value='';
+  }; reader.readAsText(file);
+}
+window.addEventListener('beforeunload',saveState);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveState();});
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('SW:',err)));
+}
+</script>
+</body>
+</html>
